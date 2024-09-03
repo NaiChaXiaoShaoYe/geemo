@@ -2,7 +2,6 @@ package routers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,15 +12,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetVideoList(c *gin.Context) {
+func ActionGetVideoList(c *gin.Context) {
 	mid := c.Query("mid")
 	season_id := c.Query("season_id")
 
+	videoInfoArray := make([]map[string]string, 0)
+
+	page := 1
+	for {
+		data := getVideoList(mid, season_id, page)
+		page++
+		if len(data.Data.Archives) == 0 {
+			break
+		}
+		for _, value := range data.Data.Archives {
+			videoInfo := make(map[string]string)
+			videoInfo["bvid"] = value.Bvid
+			videoInfo["pic"] = value.Pic
+			videoInfo["title"] = value.Title
+			videoInfo["duration"] = formatDuration(value.Duration)
+
+			videoInfoArray = append(videoInfoArray, videoInfo)
+		}
+	}
+
+	c.JSON(200, gin.H{
+		"data": gin.H{
+			"list": videoInfoArray,
+		},
+	})
+}
+
+func getVideoList(mid string, season_id string, page int) VedioListResponseData {
 	params := url.Values{}
 	params.Set("mid", mid)
 	params.Set("season_id", season_id)
-	params.Set("page_num", "1")
-	params.Set("page_size", "100")
+	params.Set("page_num", strconv.Itoa(page))
+	params.Set("page_size", "10")
 	params.Set("wts", strconv.FormatInt(time.Now().Unix(), 10))
 
 	u, _ := url.Parse("https://api.bilibili.com/x/polymer/web-space/seasons_archives_list")
@@ -29,8 +56,7 @@ func GetVideoList(c *gin.Context) {
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		fmt.Println("Error creating request:", err)
-		return
+		log.Fatal(err)
 	}
 
 	for key, value := range FakeHeaders {
@@ -54,21 +80,5 @@ func GetVideoList(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	videoInfoArray := make([]map[string]string, 0)
-
-	for _, value := range data.Data.Archives {
-		videoInfo := make(map[string]string)
-		videoInfo["bvid"] = value.Bvid
-		videoInfo["pic"] = value.Pic
-		videoInfo["title"] = value.Title
-		videoInfo["duration"] = formatDuration(value.Duration)
-
-		videoInfoArray = append(videoInfoArray, videoInfo)
-	}
-
-	c.JSON(200, gin.H{
-		"data": gin.H{
-			"list": videoInfoArray,
-		},
-	})
+	return data
 }

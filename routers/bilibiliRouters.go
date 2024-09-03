@@ -17,8 +17,8 @@ var FakeHeaders = map[string]string{
 func BilibiliRoutersInit(r *gin.Engine) {
 	bilibiliRouters := r.Group("/bilibili")
 	{
-		bilibiliRouters.GET("/get-video-list", GetVideoList)
-		bilibiliRouters.GET("/get-season-list", GetSeasonList)
+		bilibiliRouters.GET("/get-video-list", ActionGetVideoList)
+		bilibiliRouters.GET("/get-season-list", ActionGetSeasonList)
 	}
 }
 
