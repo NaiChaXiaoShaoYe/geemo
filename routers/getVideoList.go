@@ -92,7 +92,7 @@ func getMemberVideoList(mid string, page int) VedioListResponseData {
 	params := url.Values{}
 	params.Set("mid", mid)
 	params.Set("keywords", "")
-	params.Set("ps", "20")
+	params.Set("ps", "100")
 	params.Set("pn", strconv.Itoa(page))
 
 	u, _ := url.Parse("https://api.bilibili.com/x/series/recArchivesByKeywords")
