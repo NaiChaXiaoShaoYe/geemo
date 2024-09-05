@@ -25,9 +25,9 @@ type Page struct {
 
 type VedioListResponseData struct {
 	Data struct {
-		Archives []Archive  `json:"archives"`
-		Page     Page       `json:"page"`
-		Meta     SeasonMeta `json:"meta"`
+		Archives []Archive `json:"archives"`
+		Page     Page      `json:"page"`
+		// Meta     SeasonMeta `json:"meta"`
 	} `json:"data"`
 }
 type Season struct {
